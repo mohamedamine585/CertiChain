@@ -59,6 +59,31 @@
     --chart-5: 340 75% 55%;
   }
 }
+@keyframes colorChange {
+  0% {
+    background-color: #ffeb3b;
+  }
+  25% {
+    background-color: #f44336;
+  }
+  50% {
+    background-color: #e91e63;
+  }
+  75% {
+    background-color: #9c27b0;
+  }
+  100% {
+    background-color: #673ab7;
+  }
+}
+
+.animate-color-change {
+  animation: colorChange 10s infinite;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 
 @layer base {
   * {
