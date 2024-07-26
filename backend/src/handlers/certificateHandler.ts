@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import { createHash, publicDecrypt,verify,createVerify, sign, createSign, createDiffieHellman, generateKeyPair, constants } from 'crypto';
-import { getAccountBalance, getCertificateFromAptos, issueCertificateToAptos } from '../services/aptosService';
-import { addTransaction, fetchIssuer } from '../services/issuerService';
-import { verifyCertifcateData } from '../services/certificationValidation';
-import { Account } from '@aptos-labs/ts-sdk';
-import { get } from 'http';
-import { json } from 'body-parser';
+import { getCertificateFromAptos } from '../services/aptosService';
+import { Types } from 'mongoose';
+import { HASH_SALT } from '../utils/consts';
+import { getCertificateById } from '../services/certificateService';
 
 
 
@@ -13,22 +11,18 @@ import { json } from 'body-parser';
 
 export async function getCertificate(req : Request , res : Response) {
    try {
-    const hash = req.params.hash
-    const opt = await getCertificateFromAptos(hash)
-    if(opt != null && opt.issuer != null && opt.cert != null ){
-      res.json({
-        "hash":hash,
-        "certName":opt.cert.name,
-        "certType":opt.cert.type,
-        "issuerName":opt.issuer.name,
-        "issuerType":opt.issuer.type,
-        "dateTime":opt.certIssuance.dateTime,
-        "reciepientName":opt.certIssuance.reciepientName,
-        "reciepientEmail":opt.certIssuance.reciepientName,
-        "reciepientPhotoUrl":opt.certIssuance.reciepientPhotoUrl,
+    const hash = hashSHA256(req.params.id) 
+    console.log(hash)
+    const certAptos =  await getCertificateFromAptos(hash);
+    if(certAptos != null){
 
-      })
+      res.json({
+        certAptos,
+    
+      });
+
     }
+   
    
    } catch (error) {
     console.log(error)
@@ -36,57 +30,17 @@ export async function getCertificate(req : Request , res : Response) {
    return null;
 }
 
-export async function issueCertificate(req : Request , res : Response){
+export async function getCertificateHash(req : Request , res : Response){
   try {
-    console.log(req.body)
-  
-
-    const {
-        issuerId,
-        certificationId,
-        reciepientName,
-        reciepientEmail,
-        reciepientPhotoUrl,
-        certificateUrl,
-        signiture,
-        } =  req.body
-        const data = {
-            issuerId,
-            certificationId,
-            reciepientName,
-            reciepientEmail,
-            reciepientPhotoUrl,
-            certificateUrl,
-        }
+    const certIssuanceId = new Types.ObjectId()
     
-    if( signiture == null || signiture == undefined ||
-         issuerId == null || issuerId == undefined  || 
-         certificationId == null || certificationId == undefined)
-        throw new Error("Bad Body Format")
-        const issuer = await fetchIssuer(data.issuerId);
-       if(issuer != null){
-        // Verify if certificateIssuace coming from one of our Issuers
-        if(await verifyCertifcateData(data,signiture,issuer.publickey as string) ){
-          const issserSubscriptionExpirationDate = (issuer.subscriptionExpirationDate as Date).getMilliseconds();
-             if(issserSubscriptionExpirationDate < Date.now()){
+    res.json({
+      'id':certIssuanceId,
 
-              // Push transaction to blockChain
-                const certificateIssuance = await issueCertificateToAptos(data)
-                if(certificateIssuance != null){
-                  // add transaction to dataBase for tracking
-                  await addTransaction(certificateIssuance.hash,issuerId, Number.parseFloat(certificateIssuance.max_gas_amount)*Number.parseFloat(certificateIssuance.max_gas_amount)
-                  )
-                }
+      'hash':hashSHA256(certIssuanceId.toString())
+    })
 
-             }
-         }
-         res.send(issuerId)
-
-       }else{
-
-        res.sendStatus(404)
-       }
-    
+     
 
    
   } catch (error) {
@@ -138,3 +92,6 @@ async function generateKeyPairAsync() {
     }
   }
 
+function hashSHA256(data: string): string {
+  return createHash('sha256').update(data + HASH_SALT).digest('hex');
+}

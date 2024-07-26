@@ -1,22 +1,18 @@
 import mongoose, { Schema, Model, Document } from 'mongoose';
 
 // Define the Issuer schema
-const CertificateIssuanceSchema: Schema = new Schema({
+const CertificateSchema: Schema = new Schema({
   issuerId: {type:String , required : true},
   certId: {type:String , required : true},
   issuerAddress: {type:String , required : true},
-  reciepientName:{type:String , required : true},
-  reciepientEmail:{type:String , required : true,default:""},
-  reciepientPhotoUrl:{type:String , required : false},
-
-  gas:{type:String , required : true},
-  dateTime: {type:Date,required: true ,default:Date.now}
+  certName:{type:String , required : true},
+  isPrivate:{type:String , required : true,default:""},
 });
 
-// Create the CertificateIssuance model
-const  CertificateIssuance = mongoose.model('CertificateIssuance', CertificateIssuanceSchema);
+// Create the Certificate model
+const  Certificate = mongoose.model('Certificate', CertificateSchema);
 
-export default CertificateIssuance;
+export default Certificate;
 
 
 
