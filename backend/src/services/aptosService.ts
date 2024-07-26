@@ -1,6 +1,6 @@
 import { Account, AccountAddress, Aptos, AptosConfig, Ed25519PrivateKey, RawTransaction, TransactionPayload } from '@aptos-labs/ts-sdk';
 import { AptosClient, AptosAccount, TokenClient, TokenTypes, HexString, aptosRequest, Ledger_Infos_Select_Column, TxnBuilderTypes } from 'aptos';
-import { ADMIN_ADDRESS } from '../utils/consts';
+import { ADMIN_ADDRESS, PRIVATE_KEY } from '../utils/consts';
 import { aw } from '@aptos-labs/ts-sdk/dist/common/accountAddress-D9blTwwp';
 
 const aptosConfig = new AptosConfig({ fullnode: "https://fullnode.devnet.aptoslabs.com/v1" });
@@ -11,7 +11,7 @@ const client = new AptosClient('https://fullnode.devnet.aptoslabs.com/v1');
 
 
 
-const admin = Account.fromPrivateKey({privateKey:new Ed25519PrivateKey(ADMIN_ADDRESS)})
+const admin = Account.fromPrivateKey({privateKey:new Ed25519PrivateKey(PRIVATE_KEY)})
 
 
 export async function estimateTransactionCost() : Promise<number>{
@@ -20,21 +20,20 @@ export async function estimateTransactionCost() : Promise<number>{
 
 export async function fundIssuer(toAddress:string,amount : number) {
  
-  const moduleAddress = '0x1'; // Move module address
-  const moduleName = 'coin'; // Move module name
-  const functionName = 'transfer'; // Move function nam
+
   const transaction = await aptos.transaction.build.simple({
       sender: admin.accountAddress,
       data: {
         function:
-         ` ${moduleAddress}::${moduleName}::${functionName}`,
+         `0x1::aptos_account::transfer`,
         // Pass in arguments for the function you specify above
         functionArguments: [
-          toAddress,amount
+          admin.accountAddress.toString(),amount
           // details de certif
         ],
       },
      })
+     console.log(toAddress)
 
 
   const signedTransaction =await aptos.signAndSubmitTransaction({signer:admin,transaction:transaction});
@@ -54,7 +53,7 @@ export async function getCertificateFromAptos(certficateIssuanceId: String) {
         const result = await client.view(
              {
               arguments:[ADMIN_ADDRESS,certficateIssuanceId],
-              function:   `${ADMIN_ADDRESS}::CertStore::get_certificate_issuance`,
+              function:   `${ADMIN_ADDRESS}::CertManagement::get_certificate_issuance`,
               type_arguments: [],
      
              }

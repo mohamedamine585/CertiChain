@@ -68,4 +68,25 @@ const functionName = 'issue_cert'; // Move function name
       }
    }
     
+
+   //// ************************
+   ///   Should be called after fetchin this adminAddress from server to authorize user to issue too
+   export async function authorizeToUser(adminAddress:string,userAddress : number) {
  
+
+    const transaction = await aptos.transaction.build.simple({
+        sender: account.accountAddress,
+        data: {
+          function:   `${adminAddress}::CertManagement::add_authorized_user`,
+  
+          // Pass in arguments for the function you specify above
+          functionArguments: [
+            adminAddress,userAddress
+          ],
+        },
+       })
+  
+  
+  
+   } 
+  

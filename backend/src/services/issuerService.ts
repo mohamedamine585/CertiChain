@@ -18,18 +18,14 @@ export async function addIssuer(payload : any) {
      const issuer = new Issuer({
         name: payload.name,
         type: payload.type,
-        longitude: payload.longitude,
-        latitude: payload.latitude,
-        subscriptionType:payload.subscriptionType,
-        subscriptionExpirationDate: payload.subscriptionExpirationDate,
+     
         phoneNumber : payload.phoneNumber,
-        joiningDate: payload.joiningDate,
-        publicKey:payload.publicKey,
-        certificatesIds:payload.certificatesIds
-
+       
+        address:payload.address,
+       
      })
      await  issuer.save()
-     return ;
+     return issuer;
     } catch (error) {
         console.log(error)
     }
@@ -52,6 +48,21 @@ export async function addTransaction(transactionHash :string,issuerId : string ,
         console.log(error)
     }
     return null;
+    
+}
+
+
+export async function getIssuerAddress(issuerId : string ): Promise<string>{
+    try {
+     const issuer = await Issuer.findById(issuerId);
+     if(issuer != null){
+        const address = issuer.address as string
+        return address ;
+     }
+    } catch (error) {
+        console.log(error)
+    }
+    return "";
     
 }
 
