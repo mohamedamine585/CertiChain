@@ -1,0 +1,15 @@
+[package]
+name = "fmove"
+version = "1.0.0"
+authors = ["foxweb585@gmail.com"]
+
+[addresses]
+certi="_" 
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "devnet"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dev-dependencies]
