@@ -10,7 +10,7 @@ const IssuerSchema: Schema = new Schema({
   subscriptionExpirationDate: { type: Date, required: true },
   phoneNumber : {type : String , required:true},
   joiningDate: { type: Date, required: true, default: Date.now },
-  publicKey:{type : String  , required : true , default:null},
+  address:{type : String  , required : true , default:null},
   certificatesIds:{type : Array<String> , required:true,default:[]}
 });
 

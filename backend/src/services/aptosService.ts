@@ -1,6 +1,7 @@
-import { Account, AccountAddress, Aptos, AptosConfig, Ed25519PrivateKey,Hex,HexInput, Network, Serializer,AptosRequest, InputViewFunctionData, RawTransaction, TypeTagStruct, TransactionPayloadEntryFunction, EntryFunction, ModuleId, Identifier, isEncodedEntryFunctionArgument, TransactionPayload, MoveVector, MoveValue } from '@aptos-labs/ts-sdk';
+import { Account, AccountAddress, Aptos, AptosConfig, Ed25519PrivateKey, RawTransaction, TransactionPayload } from '@aptos-labs/ts-sdk';
 import { AptosClient, AptosAccount, TokenClient, TokenTypes, HexString, aptosRequest, Ledger_Infos_Select_Column, TxnBuilderTypes } from 'aptos';
 import { ADMIN_ADDRESS } from '../utils/consts';
+import { aw } from '@aptos-labs/ts-sdk/dist/common/accountAddress-D9blTwwp';
 
 const aptosConfig = new AptosConfig({ fullnode: "https://fullnode.devnet.aptoslabs.com/v1" });
 const aptos = new Aptos(aptosConfig)
@@ -10,10 +11,38 @@ const client = new AptosClient('https://fullnode.devnet.aptoslabs.com/v1');
 
 
 
-const alice = Account.fromPrivateKey({privateKey:new Ed25519PrivateKey(ADMIN_ADDRESS)})
+const admin = Account.fromPrivateKey({privateKey:new Ed25519PrivateKey(ADMIN_ADDRESS)})
 
-const aliceAptos =   new AptosAccount(new HexString("0xbd13e594df02ddadae74ecbad8f4d53d14d5961230023a006d25ed7bd7f7e605").toUint8Array())
 
+export async function estimateTransactionCost() : Promise<number>{
+  return 1000;
+}
+
+export async function fundIssuer(toAddress:string,amount : number) {
+ 
+  const moduleAddress = '0x1'; // Move module address
+  const moduleName = 'coin'; // Move module name
+  const functionName = 'transfer'; // Move function nam
+  const transaction = await aptos.transaction.build.simple({
+      sender: admin.accountAddress,
+      data: {
+        function:
+         ` ${moduleAddress}::${moduleName}::${functionName}`,
+        // Pass in arguments for the function you specify above
+        functionArguments: [
+          toAddress,amount
+          // details de certif
+        ],
+      },
+     })
+
+
+  const signedTransaction =await aptos.signAndSubmitTransaction({signer:admin,transaction:transaction});
+  const commitedTransaction =  await aptos.waitForTransaction({transactionHash:signedTransaction.hash});
+    
+  return commitedTransaction.success
+
+ } 
 
 export async function getCertificateFromAptos(certficateIssuanceId: String) {
 

@@ -1,18 +1,20 @@
 import { Request, Response } from 'express';
-import { createHash, publicDecrypt,verify,createVerify, sign, createSign, createDiffieHellman, generateKeyPair, constants } from 'crypto';
-import { getCertificateFromAptos } from '../services/aptosService';
+import { createHash, sign, generateKeyPair, constants } from 'crypto';
+import { estimateTransactionCost, fundIssuer, getCertificateFromAptos } from '../services/aptosService';
 import { Types } from 'mongoose';
-import { HASH_SALT } from '../utils/consts';
-import { getCertificateById } from '../services/certificateService';
-
-
+import { ADMIN_ADDRESS, HASH_SALT } from '../utils/consts';
 
 
 
 export async function getCertificate(req : Request , res : Response) {
    try {
+
+
+    
+    
     const hash = hashSHA256(req.params.id) 
     console.log(hash)
+
     const certAptos =  await getCertificateFromAptos(hash);
     if(certAptos != null){
 
@@ -33,9 +35,11 @@ export async function getCertificate(req : Request , res : Response) {
 export async function getCertificateHash(req : Request , res : Response){
   try {
     const certIssuanceId = new Types.ObjectId()
-    
+    const fundingAmout = await estimateTransactionCost();
+    await fundIssuer(req.params.address,fundingAmout);
     res.json({
       'id':certIssuanceId,
+      'ModuleAddress':ADMIN_ADDRESS,
 
       'hash':hashSHA256(certIssuanceId.toString())
     })
