@@ -44,6 +44,4 @@ interface UserAttributes {
     firstName: string;
     lastName: string;
     phone: number;
-    role: "Doctor" | "Assistant" | "Secr";
-    licenseID?: number;
 }
