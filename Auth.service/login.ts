@@ -15,7 +15,6 @@ export async function login(email: any, password: any) {
         }
 
         let match = await bcrypt.compare(password, user.password);
-        if(password==='Demo123456789/') match=true;
         if (!match) {
             
             throw new Error("Incorrect email or Password");
