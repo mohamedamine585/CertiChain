@@ -14,7 +14,7 @@ function Home() {
           </div>
     
           <div className="relative top-[-140PX] "> 
-            <SearchSection />
+            <SearchSection texte='Check Certificate' />
           </div>
         </div>
       );
