@@ -1,5 +1,5 @@
 
-import imagelogo from "../assets/image logo.png"; // Assurez-vous que le chemin est correct
+import imagelogo from "../assets/image logo.png"; 
 import { Button } from './ui/button';
 
 function HomeBody() {

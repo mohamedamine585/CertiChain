@@ -1,14 +1,18 @@
 import Home from "./Pages/Home"
-import { Route, Routes } from "react-router-dom";
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Approved_Validator from "./Pages/Approved_Validator";
 import Login from "./Pages/login";
 function App() {
   return (
     <>
+    <BrowserRouter>
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Home />} />
+    <Route path='/' element={<Home />} />
+     <Route path="/login" element={<Login />} />
+      <Route path='/Home' element={<Approved_Validator />} />
     </Routes>
-
+    </BrowserRouter>
     </>
   )
 }
