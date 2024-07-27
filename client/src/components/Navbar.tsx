@@ -1,8 +1,9 @@
 import { Button } from './ui/button';
-
+import { useNavigate } from 'react-router-dom';
 
 
 function Navbar() {
+  const Navigate=useNavigate()
   return (
     <nav className=" text-black flex items-center px-4 py-8 bg-[#f8f7f4] ">
       <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto ">
@@ -17,7 +18,7 @@ function Navbar() {
   HOME
 </a>
 <a
-  href="/"
+  href="/About"
   className="relative inline-block px-4 py-2 bg-slate-800 text-white rounded-full hover:underline"
 >
   ABOUT US
@@ -35,7 +36,7 @@ function Navbar() {
   BECOME AN ISSUER
 </a>
           </div>
-          <Button className="bg-black text-white flex items-center space-x-6 w-[150PX]  hover:bg-blue-600 rounded-xl">
+          <Button onClick={()=>Navigate("/Login")} className="bg-black text-white flex items-center space-x-6 w-[150PX]  hover:bg-blue-600 rounded-xl">
             <span>Login</span>
           </Button>
         </div>
