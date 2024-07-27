@@ -2,6 +2,7 @@ import express from 'express';
 import router from './routes';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { connectToDatabase } from './data/db';
 const app = express();
 const port = 3000;
 
@@ -15,7 +16,7 @@ app.use(bodyParser.json());
 app.use('/', router);
 
 
-app.listen(port, () => {
-
+app.listen(port,async () => {
+  await connectToDatabase()
   console.log(`Server is running at http://localhost:${port}`);
 });

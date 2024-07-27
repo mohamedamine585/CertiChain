@@ -1,17 +1,52 @@
 import { Request, Response } from 'express';
 import { createHash, sign, generateKeyPair, constants } from 'crypto';
-import { estimateTransactionCost, fundIssuer, getCertificateFromAptos } from '../services/aptosService';
+import { estimateTransactionCost, fundIssuer, getCertificateFromAptos, issueCertificateToAptos } from '../services/aptosService';
 import { Types } from 'mongoose';
 import { ADMIN_ADDRESS, HASH_SALT } from '../utils/consts';
+import { addCertificate, addCertificateIssuance, getAllcertificates } from '../services/certificateService';
+import { issueCertificate } from '../utils/shared';
 
 
+
+export async function getAllCertificateHandler(req : Request , res : Response) {
+  try {
+
+
+   const certs =  await getAllcertificates(req.params.address);
+   if(certs != null){
+
+     res.json({
+       certs,
+   
+     });
+
+   }
+  
+  
+  } catch (error) {
+   console.log(error)
+  }
+  return null;
+}
+
+export async function addCertificateHandler(req : Request , res : Response) {
+  try {
+
+
+   const body = req.body
+   await addCertificate(body.issuerId,body.certName,body.certType,body.certUrl)
+  
+  
+  } catch (error) {
+   console.log(error)
+  }
+  return null;
+}
 
 export async function getCertificate(req : Request , res : Response) {
    try {
 
 
-    
-    
     const hash = hashSHA256(req.params.id) 
     console.log(hash)
 
@@ -36,14 +71,72 @@ export async function getCertificateHash(req : Request , res : Response){
   try {
     const certIssuanceId = new Types.ObjectId()
     const fundingAmout = await estimateTransactionCost();
-    await fundIssuer(req.params.address,fundingAmout);
-    res.json({
-      'id':certIssuanceId,
-      'ModuleAddress':ADMIN_ADDRESS,
+    if(    await fundIssuer(req.params.address,fundingAmout)  ){
+     await addCertificateIssuance(certIssuanceId.toString(),req.params.address,req.body.id,req.body.isPrivate)
+      res.json({
+        'id':certIssuanceId,
+        'ModuleAddress':ADMIN_ADDRESS,
+  
+        'hash':hashSHA256(certIssuanceId.toString())
+      })
+  
+    }
+    else{
+      res.status(404)
+    }
+    
+     
 
-      'hash':hashSHA256(certIssuanceId.toString())
-    })
+   
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(400)
 
+  }
+}
+
+export async function fundIssuerHandler(req : Request , res : Response){
+  try {
+    const fundingAmout = await estimateTransactionCost();
+    if(    await fundIssuer(req.params.address,fundingAmout)  ){
+      res.json({
+        'moduleAddress':ADMIN_ADDRESS,
+        'adminAddress':ADMIN_ADDRESS,
+
+  
+      })
+  
+    }
+    else{
+      res.status(404)
+    }
+    
+     
+
+   
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(400)
+
+  }
+}
+
+
+export async function getAddress(req : Request , res : Response){
+  try {
+    const fundingAmout = await estimateTransactionCost();
+    if(    await fundIssuer(req.params.address,fundingAmout)  ){
+      res.json({
+        'address':ADMIN_ADDRESS,
+        'ModuleAddress':ADMIN_ADDRESS,
+  
+      })
+  
+    }
+    else{
+      res.status(404)
+    }
+    
      
 
    
@@ -98,4 +191,25 @@ async function generateKeyPairAsync() {
 
 function hashSHA256(data: string): string {
   return createHash('sha256').update(data + HASH_SALT).digest('hex');
+}
+
+
+export async function IssueCertificateHandler(req : Request , res : Response) {
+  try {
+
+
+   
+    const certIssuanceId = new Types.ObjectId()
+
+    const hash = hashSHA256(certIssuanceId.toString()) 
+  const body = req.body;
+    
+    res.json(
+      await issueCertificateToAptos(ADMIN_ADDRESS,hash,body)
+    ) 
+  
+  } catch (error) {
+   console.log(error)
+  }
+  return null;
 }
