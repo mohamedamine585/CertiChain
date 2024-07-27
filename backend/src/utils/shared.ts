@@ -40,10 +40,10 @@ const functionName = 'issue_cert'; // Move function name
 
 
    const aptos = new Aptos();
-
-   export  async function issueCertificate(moduleAddress:string,hash:string ) {
+    // Request to server to get moduleAdress
+   export  async function issueCertificate(moduleAddress:string,hash:string,data : any ) {
      try{       // To issue certificate call this 
-        const moduleName = 'CertModule'; // Move module name
+        const moduleName = 'CertManagement'; // Move module name
         const functionName = 'issue_certificate'; // Move function name
         
         
@@ -54,7 +54,17 @@ const functionName = 'issue_cert'; // Move function name
            ` ${moduleAddress}::${moduleName}::${functionName}`,
           // Pass in arguments for the function you specify above
           functionArguments: [
-            // details de certif (use hash as Id)
+            hash,
+            data.recipientName,
+            data.recipientEmail,
+            data.recipientPhoto,
+            data. certUrl,
+            data. certificateId,
+            data. issueDate,
+            data.description,
+            data.issuer
+
+            
           ],
         },
        })
@@ -64,8 +74,30 @@ const functionName = 'issue_cert'; // Move function name
       return commitedTransaction.success
     }
       catch(e){
+        
         return false;
       }
    }
     
+
+   //// ************************
+   ///   Should be called after fetchin this adminAddress from server to authorize user to issue too
+   export async function authorizeToUser(adminAddress:string,userAddress : number) {
  
+
+    const transaction = await aptos.transaction.build.simple({
+        sender: account.accountAddress,
+        data: {
+          function:   `${adminAddress}::CertManagement::add_authorized_user`,
+  
+          // Pass in arguments for the function you specify above
+          functionArguments: [
+            adminAddress,userAddress
+          ],
+        },
+       })
+  
+  
+  
+   } 
+  

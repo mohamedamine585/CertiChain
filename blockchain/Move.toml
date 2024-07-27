@@ -1,10 +1,10 @@
 [package]
-name = "fmove"
+name = "blockcerts"
 version = "1.0.0"
 authors = ["foxweb585@gmail.com"]
 
 [addresses]
-certi="_" 
+certichain="_" 
 [dev-addresses]
 
 [dependencies.AptosFramework]
