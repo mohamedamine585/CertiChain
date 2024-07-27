@@ -84,3 +84,65 @@ export async function getCertificateFromAptos(certficateIssuanceId: String) {
   return null;
   
 }
+
+export async function addIssuerAptos(issuer:string) {
+ 
+  const transaction = await aptos.transaction.build.simple({
+      sender: admin.accountAddress,
+      data: {
+        functionArguments:[issuer],
+        function:   `${ADMIN_ADDRESS}::CertManagement::add_approved_issuer`,
+      },
+     })
+
+
+  const signedTransaction =await aptos.signAndSubmitTransaction({signer:admin,transaction:transaction});
+  const commitedTransaction =  await aptos.waitForTransaction({transactionHash:signedTransaction.hash});
+    
+  return commitedTransaction.success
+
+ } 
+
+   // Request to server to get moduleAdress
+   export  async function issueCertificateToAptos(moduleAddress:string,hash:string,data : any ) {
+    try{       // To issue certificate call this 
+       const moduleName = 'CertManagement'; // Move module name
+       const functionName = 'issue_cert'; // Move function name
+       const admin = Account.fromPrivateKey({privateKey:new Ed25519PrivateKey(PRIVATE_KEY)})
+
+     const transaction = await aptos.transaction.build.simple({
+       sender: admin.accountAddress,
+       data: {
+         function:
+          `${moduleAddress}::${moduleName}::${functionName}`,
+         // Pass in arguments for the function you specify above
+         functionArguments: [
+           hash,
+           data.recipientName,
+           data.recipientEmail,
+           data.recipientPhoto,
+           data. certUrl,
+           data. certificateId,
+           data. issueDate,
+           data.description,
+           data.issuer
+
+           
+         ],
+       },
+      })
+    const transactionSigned = await aptos.signAndSubmitTransaction({signer:admin,transaction:transaction});
+     const commitedTransaction =  await aptos.waitForTransaction({transactionHash:transactionSigned.hash});
+     
+     return {
+     "result":  commitedTransaction.success,
+     "hash": commitedTransaction.hash
+
+     }
+   }
+     catch(e){
+       console.log(e);
+       return false;
+     }
+  }
+   
